@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
-import { CardsService } from './cards.service';
-import { CardsController } from './cards.controller';
+import { CardsService } from './services/cards.service';
+import { CardsController } from './controllers/cards.controller';
 import { MongooseModule } from '@nestjs/mongoose';
-import { Card, CardSchema } from './entities/card.entity';
+import { Card, CardSchema } from './schemas/card.schema';
 
 @Module({
   imports: [

@@ -8,8 +8,8 @@ import {
   Delete,
   Query,
 } from '@nestjs/common';
-import { CardsService } from './cards.service';
-import { CreateCardDto, FilterCardDto, UpdateCardDto } from './dto/cards.dtos';
+import { CardsService } from '../services/cards.service';
+import { CreateCardDto, FilterCardDto, UpdateCardDto } from '../dto/cards.dtos';
 import { MongoIdPipe } from 'src/common/mongo-id.pipe';
 
 @Controller('cards')
@@ -26,7 +26,12 @@ export class CardsController {
     return this.cardsService.findAll(params);
   }
 
-  @Get(':id')
+  @Get('/autocomplete')
+  async findAllAutocomplete(@Query() params: FilterCardDto) {
+    return this.cardsService.findAllAutocomplete(params.name);
+  }
+
+  @Get('/:id')
   findOne(@Param('id', MongoIdPipe) id: string) {
     return this.cardsService.findOne(id);
   }
