@@ -23,7 +23,10 @@ export class CardsController {
 
   @Get('/')
   async findAll(@Query() params: FilterCardDto) {
-    return this.cardsService.findAll(params);
+    if (Object.keys(params).length > 0) {
+      return this.cardsService.findAll(params);
+    }
+    return this.cardsService.findAll();
   }
 
   @Get('/autocomplete')

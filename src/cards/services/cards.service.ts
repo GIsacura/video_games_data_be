@@ -15,28 +15,40 @@ export class CardsService {
   }
 
   async findAll(params?: FilterCardDto) {
-    if (params) {
-      const { limit = 100, offset = 0, name } = params;
+    if (!params) {
+      console.log('ENTRO');
 
-      const response = await this.cardModel
-        .aggregate()
-        .search({
-          index: 'searchCard',
-          text: {
-            query: name,
-            path: {
-              wildcard: '*',
-            },
-            fuzzy: {},
-          },
-        })
-        .limit(limit)
-        .skip(offset);
+      const response = await this.cardModel.find().exec();
 
       return response;
     }
 
-    const response = await this.cardModel.find().exec();
+    const { limit = 100, offset = 0, name } = params;
+
+    if (!name) {
+      const response = await this.cardModel
+        .find()
+        .limit(limit)
+        .skip(offset)
+        .exec();
+
+      return response;
+    }
+
+    const response = await this.cardModel
+      .aggregate()
+      .search({
+        index: 'searchCard',
+        text: {
+          query: name,
+          path: {
+            wildcard: '*',
+          },
+          fuzzy: {},
+        },
+      })
+      .limit(limit)
+      .skip(offset);
 
     return response;
   }
