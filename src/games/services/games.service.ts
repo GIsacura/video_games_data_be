@@ -1,24 +1,21 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { CreateGameDto, UpdateGameDto, FilterGameDto } from '../dto/game.dtos';
 import { InjectModel } from '@nestjs/mongoose';
-import { Card } from '../schemas/card.schema';
 import { Model } from 'mongoose';
-import { CreateCardDto, FilterCardDto, UpdateCardDto } from '../dto/cards.dtos';
+import { Game } from '../schemas/game.schema';
 
 @Injectable()
-export class CardsService {
+export class GamesService {
   constructor(
-    @InjectModel(Card.name) private readonly cardModel: Model<Card>,
+    @InjectModel(Game.name) private readonly gameModel: Model<Game>,
   ) {}
-
-  create(createCardDto: CreateCardDto) {
-    return 'This action adds a new card';
+  create(createGameDto: CreateGameDto) {
+    return 'This action adds a new game';
   }
 
-  async findAll(params?: FilterCardDto) {
+  async findAll(params?: FilterGameDto) {
     if (!params) {
-      console.log('ENTRO');
-
-      const response = await this.cardModel.find().exec();
+      const response = await this.gameModel.find().limit(10).exec();
 
       return response;
     }
@@ -26,7 +23,7 @@ export class CardsService {
     const { limit = 100, offset = 0, name } = params;
 
     if (!name) {
-      const response = await this.cardModel
+      const response = await this.gameModel
         .find()
         .limit(limit)
         .skip(offset)
@@ -35,7 +32,7 @@ export class CardsService {
       return response;
     }
 
-    const response = await this.cardModel
+    const response = await this.gameModel
       .aggregate()
       .search({
         index: 'searchCard',
@@ -53,7 +50,7 @@ export class CardsService {
     return response;
   }
   async findAllAutocomplete(name: string) {
-    const response = await this.cardModel
+    const response = await this.gameModel
       .aggregate()
       .search({
         index: 'autocompleteCards',
@@ -73,18 +70,18 @@ export class CardsService {
   }
 
   findOne(id: string) {
-    const card = this.cardModel.findById(id).exec();
+    const game = this.gameModel.findById(id).exec();
 
-    if (!card) throw new NotFoundException(`Card #${id} not found`);
+    if (!game) throw new NotFoundException(`Game #${id} not found`);
 
-    return card;
+    return game;
   }
 
-  update(id: number, updateCardDto: UpdateCardDto) {
-    return `This action updates a #${id} card`;
+  update(id: number, updateGameDto: UpdateGameDto) {
+    return `This action updates a #${id} game`;
   }
 
   remove(id: number) {
-    return `This action removes a #${id} card`;
+    return `This action removes a #${id} game`;
   }
 }

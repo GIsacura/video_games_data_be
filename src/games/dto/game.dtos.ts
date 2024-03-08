@@ -1,11 +1,11 @@
 import { PartialType } from '@nestjs/mapped-types';
 import { IsOptional, IsPositive, Min } from 'class-validator';
 
-export class CreateCardDto {}
+export class CreateGameDto {}
 
-export class UpdateCardDto extends PartialType(CreateCardDto) {}
+export class UpdateGameDto extends PartialType(CreateGameDto) {}
 
-export class FilterCardDto {
+export class FilterGameDto {
   @IsOptional()
   @IsPositive()
   limit: number;
