@@ -15,7 +15,7 @@ export class GamesService {
 
   async findAll(params?: FilterGameDto) {
     if (!params) {
-      const response = await this.gameModel.find().limit(10).exec();
+      const response = await this.gameModel.find().limit(100).exec();
 
       return response;
     }
@@ -35,7 +35,7 @@ export class GamesService {
     const response = await this.gameModel
       .aggregate()
       .search({
-        index: 'searchCard',
+        index: 'searchGame',
         text: {
           query: name,
           path: {
@@ -53,7 +53,7 @@ export class GamesService {
     const response = await this.gameModel
       .aggregate()
       .search({
-        index: 'autocompleteCards',
+        index: 'autocompleteGame',
         autocomplete: {
           query: name,
           path: 'name',
@@ -72,7 +72,9 @@ export class GamesService {
   findOne(id: string) {
     const game = this.gameModel.findById(id).exec();
 
-    if (!game) throw new NotFoundException(`Game #${id} not found`);
+    if (!game) {
+      throw new NotFoundException(`Game #${id} not found`);
+    }
 
     return game;
   }
