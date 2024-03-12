@@ -62,7 +62,6 @@ export class GamesService {
       })
       .limit(10)
       .project({
-        _id: 0,
         name: 1,
       });
 
