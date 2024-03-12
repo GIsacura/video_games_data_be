@@ -25,8 +25,8 @@ export class GamesService {
     if (!name) {
       const response = await this.gameModel
         .find()
-        .limit(limit)
-        .skip(offset)
+        .limit(Number(limit))
+        .skip(Number(offset))
         .exec();
 
       return response;
@@ -44,8 +44,8 @@ export class GamesService {
           fuzzy: {},
         },
       })
-      .limit(limit)
-      .skip(offset);
+      .limit(Number(limit))
+      .skip(Number(offset));
 
     return response;
   }
