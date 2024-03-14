@@ -15,21 +15,27 @@ export class GamesService {
 
   async findAll(params?: FilterGameDto) {
     if (!params) {
-      const response = await this.gameModel.find().limit(100).exec();
+      const response = await this.gameModel.aggregate().facet({
+        records: [{ $sort: { name: 1 } }, { $limit: 50 }],
+        pageInfo: [{ $group: { _id: null, totalRecords: { $sum: 1 } } }],
+      });
 
-      return response;
+      return response[0];
     }
 
-    const { limit = 100, offset = 0, name } = params;
+    const { limit = 50, offset = 0, name } = params;
 
     if (!name) {
-      const response = await this.gameModel
-        .find()
-        .limit(Number(limit))
-        .skip(Number(offset))
-        .exec();
+      const response = await this.gameModel.aggregate().facet({
+        records: [
+          { $sort: { name: 1 } },
+          { $skip: Number(offset) },
+          { $limit: Number(limit) },
+        ],
+        pageInfo: [{ $group: { _id: null, totalRecords: { $sum: 1 } } }],
+      });
 
-      return response;
+      return response[0];
     }
 
     const response = await this.gameModel
@@ -44,10 +50,16 @@ export class GamesService {
           fuzzy: {},
         },
       })
-      .limit(Number(limit))
-      .skip(Number(offset));
+      .facet({
+        records: [
+          { $sort: { name: 1 } },
+          { $skip: Number(offset) },
+          { $limit: Number(limit) },
+        ],
+        pageInfo: [{ $group: { _id: null, totalRecords: { $sum: 1 } } }],
+      });
 
-    return response;
+    return response[0];
   }
   async findAllAutocomplete(name: string) {
     const response = await this.gameModel
