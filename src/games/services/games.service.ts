@@ -16,24 +16,36 @@ export class GamesService {
   async findAll(params?: FilterGameDto) {
     if (!params) {
       const response = await this.gameModel.aggregate().facet({
-        records: [{ $sort: { name: 1 } }, { $limit: 50 }],
+        records: [{ $limit: 50 }],
         pageInfo: [{ $group: { _id: null, totalRecords: { $sum: 1 } } }],
       });
 
       return response[0];
     }
 
-    const { limit = 50, offset = 0, name } = params;
+    const { limit = 50, offset = 0, name, genres, platforms } = params;
+
+    // console.log({
+    //   genres: genres?.split('%').join(' || '),
+    //   platforms: platforms?.split('%').join(' || '),
+    //   params,
+    // });
 
     if (!name) {
-      const response = await this.gameModel.aggregate().facet({
-        records: [
-          { $sort: { name: 1 } },
-          { $skip: Number(offset) },
-          { $limit: Number(limit) },
-        ],
-        pageInfo: [{ $group: { _id: null, totalRecords: { $sum: 1 } } }],
-      });
+      const response = await this.gameModel
+        .aggregate()
+        .match({
+          genre: genres
+            ? { $regex: genres.split('%').join(' || '), $options: 'i' }
+            : null,
+          platforms: platforms
+            ? { $regex: platforms.split('%').join(' || '), $options: 'i' }
+            : null,
+        })
+        .facet({
+          records: [{ $skip: Number(offset) }, { $limit: Number(limit) }],
+          pageInfo: [{ $group: { _id: null, totalRecords: { $sum: 1 } } }],
+        });
 
       return response[0];
     }
@@ -49,6 +61,14 @@ export class GamesService {
           },
           fuzzy: {},
         },
+      })
+      .match({
+        genre: genres
+          ? { $regex: genres.split('%').join(' || '), $options: 'i' }
+          : null,
+        platforms: platforms
+          ? { $regex: platforms.split('%').join(' || '), $options: 'i' }
+          : null,
       })
       .facet({
         records: [

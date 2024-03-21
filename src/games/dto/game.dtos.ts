@@ -16,4 +16,10 @@ export class FilterGameDto {
 
   @IsOptional()
   name: string;
+
+  @IsOptional()
+  genres: string;
+
+  @IsOptional()
+  platforms: string;
 }
