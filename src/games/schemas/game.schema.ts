@@ -52,10 +52,16 @@ export class Game extends Document {
   platforms: string;
 
   @Prop()
+  platformsArray: string[];
+
+  @Prop()
   developers: string;
 
   @Prop()
   genres: string;
+
+  @Prop()
+  genresArray: string[];
 
   @Prop()
   publishers: string;

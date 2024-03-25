@@ -22,7 +22,7 @@ export class GamesController {
   }
 
   @Get('/')
-  async findAll(@Query() params: FilterGameDto) {
+  findAll(@Query() params: FilterGameDto) {
     if (Object.keys(params).length > 0) {
       return this.gamesService.findAll(params);
     }
@@ -30,7 +30,7 @@ export class GamesController {
   }
 
   @Get('/autocomplete')
-  async findAllAutocomplete(@Query() params: FilterGameDto) {
+  findAllAutocomplete(@Query() params: FilterGameDto) {
     return this.gamesService.findAllAutocomplete(params.name);
   }
 
@@ -48,4 +48,9 @@ export class GamesController {
   remove(@Param('id') id: string) {
     return this.gamesService.remove(+id);
   }
+
+  // @Patch('updateInfo')
+  // updateInfo() {
+  //   return this.gamesService.updateContent();
+  // }
 }

@@ -3,6 +3,7 @@ import { CreateGameDto, UpdateGameDto, FilterGameDto } from '../dto/game.dtos';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Game } from '../schemas/game.schema';
+import { platform } from 'os';
 
 @Injectable()
 export class GamesService {
@@ -25,23 +26,18 @@ export class GamesService {
 
     const { limit = 50, offset = 0, name, genres, platforms } = params;
 
-    // console.log({
-    //   genres: genres?.split('%').join(' || '),
-    //   platforms: platforms?.split('%').join(' || '),
-    //   params,
-    // });
+    let query: any = {};
+    if (genres) {
+      query.genresArray = { $in: genres.split('%') };
+    }
+    if (platforms) {
+      query.platformsArray = { $in: platforms.split('%') };
+    }
 
     if (!name) {
       const response = await this.gameModel
         .aggregate()
-        .match({
-          genre: genres
-            ? { $regex: genres.split('%').join(' || '), $options: 'i' }
-            : null,
-          platforms: platforms
-            ? { $regex: platforms.split('%').join(' || '), $options: 'i' }
-            : null,
-        })
+        .match(query)
         .facet({
           records: [{ $skip: Number(offset) }, { $limit: Number(limit) }],
           pageInfo: [{ $group: { _id: null, totalRecords: { $sum: 1 } } }],
@@ -62,14 +58,7 @@ export class GamesService {
           fuzzy: {},
         },
       })
-      .match({
-        genre: genres
-          ? { $regex: genres.split('%').join(' || '), $options: 'i' }
-          : null,
-        platforms: platforms
-          ? { $regex: platforms.split('%').join(' || '), $options: 'i' }
-          : null,
-      })
+      .match(query)
       .facet({
         records: [
           { $sort: { name: 1 } },
@@ -117,4 +106,25 @@ export class GamesService {
   remove(id: number) {
     return `This action removes a #${id} game`;
   }
+
+  // async updateContent() {
+  //   for (var i = 0; i < 474417; i += 50) {
+  //     const games = await this.gameModel.find().limit(50).skip(i).exec();
+
+  //     games?.forEach(async (game) => {
+  //       var platformsArray = game.platforms?.split('||');
+  //       var genresArray = game.genres?.split('||');
+
+  //       await this.gameModel.updateOne(
+  //         { _id: game._id },
+  //         {
+  //           $set: {
+  //             platformsArray: platformsArray || [],
+  //             genresArray: genresArray || [],
+  //           },
+  //         },
+  //       );
+  //     });
+  //   }
+  // }
 }
