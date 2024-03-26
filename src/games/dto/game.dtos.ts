@@ -12,7 +12,7 @@ export class FilterGameDto {
 
   @IsOptional()
   @Min(0)
-  offset: number;
+  page: number;
 
   @IsOptional()
   name: string;

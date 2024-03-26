@@ -3,7 +3,6 @@ import { CreateGameDto, UpdateGameDto, FilterGameDto } from '../dto/game.dtos';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Game } from '../schemas/game.schema';
-import { platform } from 'os';
 
 @Injectable()
 export class GamesService {
@@ -24,7 +23,7 @@ export class GamesService {
       return response[0];
     }
 
-    const { limit = 50, offset = 0, name, genres, platforms } = params;
+    const { limit = 50, page = 1, name, genres, platforms } = params;
 
     let query: any = {};
     if (genres) {
@@ -39,7 +38,10 @@ export class GamesService {
         .aggregate()
         .match(query)
         .facet({
-          records: [{ $skip: Number(offset) }, { $limit: Number(limit) }],
+          records: [
+            { $skip: Number((page - 1) * 50) },
+            { $limit: Number(limit) },
+          ],
           pageInfo: [{ $group: { _id: null, totalRecords: { $sum: 1 } } }],
         });
 
@@ -62,7 +64,7 @@ export class GamesService {
       .facet({
         records: [
           { $sort: { name: 1 } },
-          { $skip: Number(offset) },
+          { $skip: Number((page - 1) * 50) },
           { $limit: Number(limit) },
         ],
         pageInfo: [{ $group: { _id: null, totalRecords: { $sum: 1 } } }],
